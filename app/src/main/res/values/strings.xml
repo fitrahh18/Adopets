@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">Adopets_FYP</string>
+    <string name="app_name">ADOPETS</string>
+    <string name="gender">Gender</string>
+    <string name="species">Species</string>
+    <string name="status">Availability</string>
+    <string name="age">Age</string>
+    <string name="location">Location</string>
 </resources>

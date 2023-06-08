@@ -28,13 +28,11 @@
         android:layout_above="@id/bottomNavigation"
         android:visibility="visible">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Home"
-            android:textSize="22sp" />
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"/>
 
     </RelativeLayout>
 
@@ -45,25 +43,51 @@
         android:layout_above="@id/bottomNavigation"
         android:visibility="gone">
 
+
+        <ImageView
+            android:id="@+id/animal"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            app:srcCompat="@drawable/pets" />
+
         <TextView
+            android:id="@+id/welcome"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/animal"
+            android:layout_centerInParent="true"
+            android:text="Welcome to Adopets!"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/more"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textSize="22sp"
-            android:text="Profile"/>
-
-        <Button
-            android:id="@+id/signout"
-            android:layout_below="@id/signinbt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Logout" />
+            android:layout_marginTop="30dp"
+            android:layout_below="@+id/welcome"
+            android:textSize="15sp"
+            android:text="Sign up with us to keep up on pets for adoption updates everyday. Find your desired pets friend now!"/>
 
         <Button
             android:id="@+id/signinbt"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/more"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
             android:text="Sign in" />
+
+        <Button
+            android:id="@+id/signupbt"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/signinbt"
+            android:layout_centerHorizontal="true"
+            android:backgroundTint="#3F51B5"
+            android:text="Sign up" />
 
 
     </RelativeLayout>
@@ -73,13 +97,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:mbn_circleColor="#ffffff"
-        app:mbn_backgroundBottomColor="#FF9800"
-        app:mbn_countBackgroundColor="#ff6f00"
+        app:mbn_backgroundBottomColor="#ffffff"
+        app:mbn_countBackgroundColor="#B1B0AE"
         app:mbn_countTextColor="#ffffff"
         app:mbn_defaultIconColor="#90a4ae"
         app:mbn_rippleColor="#2f424242"
-        app:mbn_selectedIconColor="#3c415e"
-        app:mbn_shadowColor="#F3F1EF"
+        app:mbn_selectedIconColor="#FF9800"
+        app:mbn_shadowColor="#B1B0AE"
         android:layout_alignParentBottom="true"
         />
 

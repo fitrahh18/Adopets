@@ -28,7 +28,6 @@ public class SignIn extends AppCompatActivity {
     TextView tosignup;
     EditText username;
     EditText passwordi;
-
     private FirebaseAuth mAuth;
 
     @Override
@@ -69,7 +68,7 @@ public class SignIn extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
                         Toast.makeText(SignIn.this, "User logged in successfully", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(SignIn.this, MainActivity.class));
+                        startActivity(new Intent(SignIn.this, SecondMain.class));
                     }else{
                         Toast.makeText(SignIn.this, "Log in error", Toast.LENGTH_SHORT).show();
                     }
@@ -80,7 +79,7 @@ public class SignIn extends AppCompatActivity {
 
     void navigateToSecondActivity(){
         finish();
-        Intent intent = new Intent(SignIn.this,MainActivity.class);
+        Intent intent = new Intent(SignIn.this,SecondMain.class);
         startActivity(intent);
     }
     }
