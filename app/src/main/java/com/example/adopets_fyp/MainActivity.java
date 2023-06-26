@@ -1,7 +1,5 @@
 package com.example.adopets_fyp;
 
-import static com.example.adopets_fyp.R.id.ivComment;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,12 +7,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
+import com.example.adopets_fyp.R;
+import com.example.adopets_fyp.SignIn;
+import com.example.adopets_fyp.SignUp;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     GoogleSignInClient gsc;
     Button signinbt;
     Button signupbt;
-    private RecyclerView recyclerView;
-    private ArrayList<IgFeed> arrayList;
     FirebaseAuth mAuth;
     Button view;
     private MeowBottomNavigation bottomNavigation;
@@ -46,8 +44,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        arrayList = new ArrayList<>();
-        recyclerView = findViewById(R.id.recyclerView);
+
         signinbt = findViewById(R.id.signinbt);
         signupbt = findViewById(R.id.signupbt);
         mAuth = FirebaseAuth.getInstance();
@@ -55,12 +52,6 @@ public class MainActivity extends AppCompatActivity {
         nearby=findViewById(R.id.nearbyy);
         home=findViewById(R.id.homee);
         profile=findViewById(R.id.profilee);
-
-        arrayList.add(new IgFeed(R.drawable.ic_launcher_background,R.drawable.feral,"fitrah@gmail.com", "Kuala Terengganu"));
-
-        RecyclerAdapt recyclerAdapt = new RecyclerAdapt(arrayList);
-        recyclerView.setAdapter(recyclerAdapt);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         gsc = GoogleSignIn.getClient(this,gso);
@@ -92,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                         nearby.setVisibility(View.VISIBLE);
                         home.setVisibility(View.GONE);
                         profile.setVisibility(View.GONE);
-                            break;
+                        break;
 
                     case 2:
                         nearby.setVisibility(View.GONE);
@@ -172,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(Task<Void> task) {
                 finish();
-                startActivity(new Intent(MainActivity.this,SignIn.class));
+                startActivity(new Intent(MainActivity.this, SignIn.class));
             }
         });
     }

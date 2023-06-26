@@ -1,13 +1,14 @@
 {
   "project_info": {
     "project_number": "522053901690",
+    "firebase_url": "https://adopetsfyp-8523c-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "adopetsfyp-8523c",
     "storage_bucket": "adopetsfyp-8523c.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:522053901690:android:def667468a3cd2d491cac3",
+        "mobilesdk_app_id": "1:522053901690:android:d4e3d3e6866bfacc91cac3",
         "android_client_info": {
           "package_name": "com.example.adopets_fyp"
         }

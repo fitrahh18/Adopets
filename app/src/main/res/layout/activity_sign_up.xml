@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SignUp">
+    tools:context=".SignUp"
+    android:background="#0C1B3A">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -12,7 +13,8 @@
         android:layout_margin="30dp"
         android:layout_centerVertical="true"
         app:cardCornerRadius="30dp"
-        app:cardElevation="20dp">
+        app:cardElevation="20dp"
+        app:cardBackgroundColor="#0C1B3A">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,11 +31,11 @@
                 android:textSize="35dp"
                 android:textStyle="bold"
                 android:textAlignment="center"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:gravity="center_horizontal" />
 
             <EditText
-                android:id="@+id/usernamen"
+                android:id="@+id/userName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="60dp"
@@ -42,11 +44,11 @@
                 android:drawablePadding="20dp"
                 android:hint="Username"
                 android:padding="20dp"
-                android:textColor="@color/black"
-                android:textColorHint="#4E4747" />
+                android:textColor="@color/white"
+                android:textColorHint="#A59E9E" />
 
             <EditText
-                android:id="@+id/usernameu"
+                android:id="@+id/userEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -55,8 +57,8 @@
                 android:drawablePadding="20dp"
                 android:hint="Email"
                 android:padding="20dp"
-                android:textColor="@color/black"
-                android:textColorHint="#4E4747" />
+                android:textColor="@color/white"
+                android:textColorHint="#A59E9E" />
 
             <EditText
                 android:id="@+id/passwordu"
@@ -69,8 +71,8 @@
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:padding="20dp"
-                android:textColor="@color/black"
-                android:textColorHint="#4E4747" />
+                android:textColor="@color/white"
+                android:textColorHint="#A59E9E" />
 
             <EditText
                 android:id="@+id/cfpassword"
@@ -83,8 +85,8 @@
                 android:hint="Confirm Password"
                 android:inputType="textPassword"
                 android:padding="20dp"
-                android:textColor="@color/black"
-                android:textColorHint="#4E4747" />
+                android:textColor="@color/white"
+                android:textColorHint="#A59E9E" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/signupbtn"
@@ -103,7 +105,7 @@
                 android:padding="8dp"
                 android:layout_marginTop="10dp"
                 android:text=" Already have an account? Login Here"
-                android:textColor="@color/design_default_color_primary_variant" />
+                android:textColor="@color/white"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </RelativeLayout>

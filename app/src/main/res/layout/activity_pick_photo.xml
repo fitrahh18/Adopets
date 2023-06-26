@@ -11,8 +11,8 @@
         android:id="@+id/pickimage"
         android:layout_width="match_parent"
         android:layout_height="450dp"
-        android:scaleType="centerCrop"
-        android:layout_centerInParent="true"/>
+        android:layout_marginTop="5dp"
+        android:background="@color/black" />
 
     <Button
         android:id="@+id/select"
@@ -20,26 +20,91 @@
         android:layout_height="wrap_content"
         android:text="Select Image"
         android:textAllCaps="false"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="60dp"/>
+        android:backgroundTint="#FF9800"
+        android:layout_marginLeft="70dp"
+        android:layout_below="@+id/pickimage"/>
 
     <Button
-    android:id="@+id/uploadimagebtn"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Upload Image"
-    android:textAllCaps="false"
-    android:layout_centerHorizontal="true"
-    android:layout_alignParentBottom="true"
-    android:layout_marginBottom="20dp"/>
-    <Button
-        android:id="@+id/next"
+        android:id="@+id/uploadimagebtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Next"
+        android:layout_below="@+id/pickimage"
+        android:layout_marginLeft="210dp"
+        android:backgroundTint="#EA400B"
+        android:text="Upload Image"
         android:textAllCaps="false"
-        android:layout_marginLeft="300dp"
-        android:layout_marginTop="10dp" />
+        android:layout_marginBottom="20dp"/>
+
+    <EditText
+        android:id="@+id/petname"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="19dp"
+        android:layout_below="@+id/select"
+        android:hint="Name" />
+
+    <EditText
+        android:id="@+id/petage"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="19dp"
+        android:layout_below="@+id/petname"
+        android:hint="Age" />
+
+    <EditText
+        android:id="@+id/petbreeds"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="19dp"
+        android:layout_below="@+id/petage"
+        android:hint="Breeds" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:id="@+id/forspecies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/petbreeds"
+        android:hint="@string/species">
+
+        <AutoCompleteTextView
+            android:id="@+id/speciess"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:id="@+id/forstatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/forspecies"
+        android:hint="@string/status">
+
+        <AutoCompleteTextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:id="@+id/forgender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/forstatus"
+        android:hint="@string/gender">
+
+        <AutoCompleteTextView
+            android:id="@+id/gender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 
 </RelativeLayout>

@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SignIn">
+    tools:context=".SignIn"
+    android:background="#0C1B3A">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -12,7 +13,8 @@
         android:layout_margin="30dp"
         android:layout_centerVertical="true"
         app:cardCornerRadius="40dp"
-        app:cardElevation="20dp">
+        app:cardElevation="20dp"
+        app:cardBackgroundColor="#0C1B3A">
 
 
         <LinearLayout
@@ -27,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/signin"
                 android:text="Sign In"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="35sp"
                 android:textStyle="bold"
                 android:textAlignment="center"
@@ -44,8 +46,8 @@
                 android:hint="Email"
                 android:padding="20dp"
                 android:text="fitrah@gmail.com"
-                android:textColor="@color/black"
-                android:textColorHint="#4E4747" />
+                android:textColor="@color/white"
+                android:textColorHint="#A59E9E" />
 
             <EditText
                 android:id="@+id/passwordi"
@@ -59,8 +61,8 @@
                 android:inputType="textPassword"
                 android:padding="20dp"
                 android:text="123456"
-                android:textColor="@color/black"
-                android:textColorHint="#4E4747" />
+                android:textColor="@color/white"
+                android:textColorHint="#A59E9E" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/loginbtn"
@@ -79,7 +81,7 @@
                 android:padding="8dp"
                 android:layout_marginTop="10dp"
                 android:text="Or Sign In with"
-                android:textColor="@color/black" />
+                android:textColor="@color/white" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -107,8 +109,8 @@
                 android:layout_gravity="center"
                 android:padding="8dp"
                 android:layout_marginTop="10dp"
-                android:text="Don't have an account? Sign Up"
-                android:textColor="#535050" />
+                android:text="Click here to sign up"
+                android:textColor="@color/white" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -1,133 +1,129 @@
 package com.example.adopets_fyp;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.adopets_fyp.databinding.ActivityPickPhotoBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+import java.util.HashMap;
 
 public class pickPhoto extends AppCompatActivity {
+    private EditText petname, petage, petbreeds;
+    private Button submits;
+    String[] item2 = {"Cat", "Dog", "Hamster", "Tortoise", "Rabbit", "Bird", "Guinea Pigs", "Hedgehog", "Lizard", "Ferret","Fish","Iguana", "Other"};
 
-    Button nexti;
-    Button select;
-    ImageView pickimage;
-    ActivityPickPhotoBinding binding;
-    Uri imageUri;
-    StorageReference storageReference;
-    ProgressDialog progressDialog;
+    String[] item3 = {"Available" , "Not available"};
+    String[] item = {"Male" , "Female"};
+    AutoCompleteTextView autoCompleteTextView;
+    AutoCompleteTextView autoCompleteTextView1;
+    AutoCompleteTextView autoCompleteTextView2;
+    ArrayAdapter<String> adapterItems;
 
+    ArrayAdapter<String> adapterItems1;
+    ArrayAdapter<String> adapterItems2;
+
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityPickPhotoBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_pick_photo);
 
-        nexti=findViewById(R.id.next);
-        pickimage=findViewById(R.id.pickimage);
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        String uid= FirebaseAuth.getInstance().getUid();
 
-        nexti.setOnClickListener(view -> {
-            startActivity(new Intent(pickPhoto.this, PostFeed.class));
-        });
+        databaseReference = firebaseDatabase.getReference().child("Users");
 
-        binding.select.setOnClickListener(new View.OnClickListener() {
+        petname = findViewById(R.id.petname);
+        petage = findViewById(R.id.petage);
+        petbreeds = findViewById(R.id.petbreeds);
+        autoCompleteTextView = findViewById(R.id.gender);
+        autoCompleteTextView1 = findViewById(R.id.speciess);
+        autoCompleteTextView2 = findViewById(R.id.status);
+
+        adapterItems = new ArrayAdapter<String>(this, R.layout.list_item, item);
+        adapterItems1 = new ArrayAdapter<String>(this, R.layout.list_item, item2);
+        adapterItems2 = new ArrayAdapter<String>(this, R.layout.list_item, item3);
+        submits.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String getname = petname.getText().toString();
+                String getage = petage.getText().toString();
+                String getbreed = petbreeds.getText().toString();
+                System.out.println("test 1");
+                HashMap<String,Object> hashMap = new HashMap<>();
+                hashMap.put("petname", getname);
+                hashMap.put("petage", getage);
+                hashMap.put("petbreeds", getbreed);
 
+                assert uid != null;
+                String postuid = uid+getname;
 
-                selectImage();
+                databaseReference.child(uid)
+                        .child("post")
+                        .child(postuid)
+                        .setValue(hashMap)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(pickPhoto.this, "Data added successfully", Toast.LENGTH_SHORT).show();
+                                System.out.println("test 1");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(pickPhoto.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                System.out.println("test 2");
+                            }
+                        });
+
+                //upload image to database
+
+            }
+        });
+        System.out.println("test 3");
+
+        autoCompleteTextView.setAdapter(adapterItems);
+
+        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = adapterView.getItemAtPosition(i).toString();
+                Toast.makeText(pickPhoto.this, "Item" + item, Toast.LENGTH_SHORT).show();
             }
         });
 
-       binding.uploadimagebtn.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
+        autoCompleteTextView1.setAdapter(adapterItems1);
+        autoCompleteTextView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item2 = adapterView.getItemAtPosition(i).toString();
+                Toast.makeText(pickPhoto.this, "Item" + item2, Toast.LENGTH_SHORT).show();
+            }
+        });
 
-               uploadImage();
-           }
-       });
+        autoCompleteTextView2.setAdapter(adapterItems2);
+        autoCompleteTextView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item3 = adapterView.getItemAtPosition(i).toString();
+                Toast.makeText(pickPhoto.this, "Item" + item3, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void uploadImage(){
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Uploading file...");
-        progressDialog.show();
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyy_MM_dd_HH_mm_ss", Locale.CANADA);
-        Date now = new Date();
-        String fileName = formatter.format(now);
-        storageReference = FirebaseStorage.getInstance().getReference("images/"+fileName);
-
-        storageReference.putFile(imageUri)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        binding.pickimage.setImageURI(null);
-                        Toast.makeText(pickPhoto.this, "Successfully uploaded", Toast.LENGTH_SHORT).show();
-                        if(progressDialog.isShowing())
-                            progressDialog.dismiss();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                        if(progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        Toast.makeText(pickPhoto.this, "Upload fail", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-    }
-
-    private void selectImage(){
-        Intent intent=new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, 100);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode==100 && data !=null && data.getData() != null)
-        {
-            imageUri=data.getData();
-            binding.pickimage.setImageURI(imageUri);
-        }
-    }
 }
-
-
-
-
-

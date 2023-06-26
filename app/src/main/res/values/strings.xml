@@ -5,4 +5,55 @@
     <string name="status">Availability</string>
     <string name="age">Age</string>
     <string name="location">Location</string>
+
+    <string-array name="spinner1_items">
+        <item>Cat</item>
+        <item>Dog</item>
+        <item>Hamster</item>
+        <item>Tortoise</item>
+        <item>Rabbit</item>
+        <item>Bird</item>
+        <item>Guinea pigs</item>
+        <item>Hedgehog</item>
+        <item>Lizard</item>
+        <item>Ferret</item>
+        <item>Fish</item>
+        <item>Iguana</item>
+        <item>Other</item>
+        <!-- Add more items as needed -->
+    </string-array>
+
+    <string-array name="spinner2_items">
+        <item>Male</item>
+        <item>Female</item>
+        <!-- Add more items as needed -->
+    </string-array>
+
+    <string-array name="spinner3_items">
+        <item>1 to 11 months</item>
+        <item>1 to 5 years</item>
+        <item>6 to 10 years</item>
+        <item>More than 10 years</item>
+        <!-- Add more items as needed -->
+    </string-array>
+
+    <string-array name="spinner4_items">
+        <item>Kuala Lumpur</item>
+        <item>Selangor</item>
+        <item>Melaka</item>
+        <item>Johor</item>
+        <item>Negeri Sembilan</item>
+        <item>Kedah</item>
+        <item>Perlis</item>
+        <item>Penang</item>
+        <item>Perak</item>
+        <item>Kelantan</item>
+        <item>Terengganu</item>
+        <item>Sabah</item>
+        <item>Sarawak</item>
+        <!-- Add more items as needed -->
+    </string-array>
+    <string name="title_activity_maps">MapsActivity</string>
+
+
 </resources>
