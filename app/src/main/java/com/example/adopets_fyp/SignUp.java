@@ -29,10 +29,10 @@ public class SignUp extends AppCompatActivity {
     Button signupbtn;
     TextView loginin;
     EditText userEmail;
+    EditText phonen;
     EditText passwordu;
 
     EditText userName;
-
 
 
     @Override
@@ -43,14 +43,14 @@ public class SignUp extends AppCompatActivity {
 
         userEmail = findViewById(R.id.userEmail);
         userName = findViewById(R.id.userName);
-        passwordu=findViewById(R.id.passwordu);
+        phonen = findViewById(R.id.phone);
+        passwordu = findViewById(R.id.passwordu);
         loginin = findViewById(R.id.loginin);
         signupbtn = findViewById(R.id.signupbtn);
         mAuth = FirebaseAuth.getInstance();
 
 
-
-        signupbtn.setOnClickListener(view ->{
+        signupbtn.setOnClickListener(view -> {
             createUser();
         });
 
@@ -59,57 +59,57 @@ public class SignUp extends AppCompatActivity {
         });
     }
 
-    private void createUser(){
+    private void createUser() {
         String email = userEmail.getText().toString();
         String password = passwordu.getText().toString();
+        String username = userName.getText().toString();
+        String phone = phonen.getText().toString();
 
-        if (TextUtils.isEmpty(email)){
+        if (TextUtils.isEmpty(email)) {
             userEmail.setError("Email cannot be empty");
             userEmail.requestFocus();
-        }else if (TextUtils.isEmpty(password)){
+        } else if (TextUtils.isEmpty(password)) {
             passwordu.setError("Password cannot be empty");
             passwordu.requestFocus();
-        }
-        else if (TextUtils.isEmpty(password)){
-            userName.setError("User name cannot be empty");
+        } else if (TextUtils.isEmpty(username)) {
+            userName.setError("Username cannot be empty");
             userName.requestFocus();
-        }else{
-            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        } else if (TextUtils.isEmpty(phone)) {
+            phonen.setError("Phone number cannot be empty");
+            phonen.requestFocus();
+        } else {
+            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()){
+                    if (task.isSuccessful()) {
+                        String uid = FirebaseAuth.getInstance().getUid();
+                        if (uid != null) {
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            DatabaseReference databaseReference = database.getReference("Users").child(uid);
+                            HashMap<String, Object> hashMap = new HashMap<>();
+                            hashMap.put("useremail", email);
+                            hashMap.put("username", username);
+                            hashMap.put("phone", phone); // Add the phone number to the hashMap
 
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        String uid= FirebaseAuth.getInstance().getUid();
-                        // Get a reference to the desired location in the database
-                        DatabaseReference databaseReference = database.getReference("Users").child(uid);
-                        HashMap<String,Object> hashMap = new HashMap<>();
-
-                        /*String email = String.valueOf(usernameu);
-                        String[] parts = email.split("@");*/
-                        String username = userName.getText().toString();
-
-                        hashMap.put("useremail", email);
-                        hashMap.put("username", username);
-                        // Store the data with the UID in Realtime Database
-                        databaseReference.setValue(hashMap)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        // Data successfully stored
-                                        Toast.makeText(SignUp.this,"data stored",Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // Handle any errors
-                                    }
-                                });
+                            databaseReference.setValue(hashMap)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            // Data successfully stored
+                                            Toast.makeText(SignUp.this, "Data stored", Toast.LENGTH_LONG).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            // Handle any errors
+                                        }
+                                    });
+                        }
                         Toast.makeText(SignUp.this, "User registered successfully", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(SignUp.this, MainActivity.class));
-                    }else{
-                        Toast.makeText(SignUp.this, "Registration error:" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(SignUp.this, "Registration error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });

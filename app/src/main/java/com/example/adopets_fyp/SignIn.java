@@ -25,9 +25,12 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SignIn extends AppCompatActivity {
     Button loginbtn;
+    GoogleSignInOptions gso;
+    GoogleSignInClient gsc;
     TextView tosignup;
     EditText username;
     EditText passwordi;
+    ImageView googlebtn;
     private FirebaseAuth mAuth;
 
     @Override
@@ -40,6 +43,25 @@ public class SignIn extends AppCompatActivity {
         loginbtn = findViewById(R.id.loginbtn);
         username = findViewById(R.id.username);
         passwordi = findViewById(R.id.passwordi);
+        googlebtn = findViewById(R.id.google_btn);
+
+
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        gsc = GoogleSignIn.getClient(this,gso);
+
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+        if(acct!=null){
+            navigateToSecondActivity();
+        }
+
+
+        googlebtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signIn();
+            }
+        });
+
 
         loginbtn.setOnClickListener(view -> {
             loginUser();
@@ -50,6 +72,11 @@ public class SignIn extends AppCompatActivity {
         });
 
 
+    }
+
+    void signIn(){
+        Intent signInIntent = gsc.getSignInIntent();
+        startActivityForResult(signInIntent,1000);
     }
 
     private void loginUser(){
@@ -75,6 +102,21 @@ public class SignIn extends AppCompatActivity {
                 }
             });
         }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1000){
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+
+            try {
+                task.getResult(ApiException.class);
+                navigateToSecondActivity();
+            } catch (ApiException e) {
+                Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 
     void navigateToSecondActivity(){

@@ -132,7 +132,7 @@
             android:id="@+id/markerSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="Select Location"/>
+            android:autofillHints="Select location"/>
 
         <Button
             android:id="@+id/submit"
@@ -144,6 +144,8 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp" />
+
+
 
     </LinearLayout>
 </ScrollView>

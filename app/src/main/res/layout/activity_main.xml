@@ -14,12 +14,14 @@
         android:layout_above="@id/bottomNavigation"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textSize="22sp"
-            android:text="nearby"/>
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".MapActivity" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -30,10 +32,12 @@
         android:visibility="visible">
 
         <RelativeLayout
-            android:id="@+id/row_container"
+            android:id="@+id/row_container2"
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:background="@color/white">
+            android:background="@color/white"
+            android:clickable="true">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/feral"
@@ -118,14 +122,6 @@
                     android:text="Gender"
                     android:textSize="15sp" />
 
-                <TextView
-                    android:id="@+id/age"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Age"
-                    android:textSize="15sp"
-                    android:visibility="visible" />
 
 
             </LinearLayout>
@@ -150,7 +146,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                app:srcCompat="@drawable/pets" />
+                app:srcCompat="@drawable/newlogo" />
 
             <TextView
                 android:id="@+id/welcome"

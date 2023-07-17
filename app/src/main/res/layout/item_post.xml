@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/row_container"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:background="@color/white"
+   >
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/feral"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/default_profile_image"
+        android:layout_marginLeft="16dp" />
+
+    <LinearLayout
+        android:id="@+id/layoutName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/feral"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="16dp"
+        android:layout_toEndOf="@id/feral"
+        android:layout_toRightOf="@id/feral"
+        android:gravity="top"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-light"
+            android:text="Name Pet"
+            android:textColor="@android:color/black"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right|top"
+            android:minWidth="170dp"
+            android:text="18-10-2018"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_alignStart="@+id/layoutName"
+        android:layout_alignLeft="@+id/layoutName"
+        android:layout_alignParentBottom="true"
+        android:background="#d4d4d4" />
+
+    <LinearLayout
+        android:id="@+id/LayoutType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layoutName"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="16dp"
+        android:layout_toEndOf="@id/feral"
+        android:layout_toRightOf="@id/feral"
+        android:gravity="top"
+        android:orientation="horizontal"
+        android:text="Type Pet"
+        android:textSize="15sp"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/gender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gender"
+            android:textSize="15sp" />
+    </LinearLayout>
+</RelativeLayout>

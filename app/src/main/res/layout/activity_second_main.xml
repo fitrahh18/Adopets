@@ -14,124 +14,24 @@
         android:layout_above="@id/bottomNavigation"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textSize="22sp"
-            android:text="nearby"/>
+      <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MapsActivity"/>
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/homee"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottomNavigation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:visibility="gone">
 
-        <RelativeLayout
-            android:id="@+id/row_container"
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:background="@color/white">
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/feral"
-                android:src="@drawable/feral"
-                android:layout_height="55dp"
-                android:layout_width="55dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"/>
-
-            <LinearLayout
-                android:id="@+id/layoutName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignTop="@+id/feral"
-                android:layout_marginLeft="90dp"
-                android:layout_marginStart="90dp"
-                android:weightSum="2"
-                android:gravity="top"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_weight="1"
-                    android:id="@+id/name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignTop="@+id/feral"
-                    android:text="Name Pet"
-                    android:fontFamily="sans-serif-light"
-                    android:textColor="@android:color/black"
-                    android:textSize="19sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/date"
-                    android:layout_width="wrap_content"
-                    android:minWidth="170dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignTop="@+id/picture"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:layout_weight="1"
-                    android:gravity="right|top"
-                    android:text="18-10-2018"
-                    android:textColor="@color/black" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignStart="@+id/layoutName"
-                android:background="#d4d4d4"
-                android:layout_alignLeft="@+id/layoutName" />
-
-            <LinearLayout
-                android:id="@+id/LayoutType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/layoutName"
-                android:layout_alignStart="@+id/layoutName"
-                android:layout_below="@+id/layoutName"
-                android:layout_marginBottom="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginTop="5dp"
-                android:gravity="top"
-                android:orientation="horizontal"
-                android:text="Type Pet"
-                android:textSize="15sp"
-                android:weightSum="2">
-
-                <TextView
-                    android:id="@+id/gender"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Gender"
-                    android:textSize="15sp" />
-
-
-                <ImageView
-                    android:id="@+id/love"
-                    android:layout_width="80dp"
-                    android:layout_height="20dp"
-                    android:layout_weight="1"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:src="@drawable/baseline_favorite_24" />
-
-            </LinearLayout>
-
-        </RelativeLayout>
+            android:layout_height="match_parent" />
 
     </RelativeLayout>
 
@@ -158,6 +58,7 @@
                 app:cardCornerRadius="100dp">
 
                 <ImageView
+                    android:id="@+id/userphoto"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/profile" />
@@ -201,6 +102,14 @@
                     android:paddingLeft="15dp"
                     android:layout_gravity="center_vertical"/>
 
+                <ImageView
+                    android:id="@+id/editusernamebutton"
+                    android:layout_width= "wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/baseline_edit_24"
+                    android:layout_marginLeft="165dp"
+                    />
+
             </LinearLayout>
 
             <LinearLayout
@@ -222,6 +131,7 @@
                     android:paddingLeft="15dp"
                     android:layout_gravity="center_vertical"/>
 
+                    />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -248,8 +158,7 @@
                     android:layout_width= "wrap_content"
                     android:layout_height="match_parent"
                     android:src="@drawable/baseline_navigate_next_24"
-                    android:layout_marginEnd="@+id/mypost"
-                    android:layout_marginLeft="220dp"
+                    android:layout_marginLeft="180dp"
                     />
             </LinearLayout>
 
