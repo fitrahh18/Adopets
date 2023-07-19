@@ -54,6 +54,7 @@
         <!-- Add more items as needed -->
     </string-array>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_maps2">MapsActivity2</string>
 
 
 </resources>

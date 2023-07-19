@@ -44,6 +44,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -68,6 +69,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -93,9 +95,11 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
     private List<Post> postList;
 
     TextView uploadphoto;
+    Button buttons3;
     private Uri selectedImageUri;
     //others
     Button signOutBtn, mylocate;
+    TextView lrusername, lruseremail;
     GoogleSignInClient gsc;
     private MeowBottomNavigation bottomNavigation;
     RelativeLayout nearby, home, profile;
@@ -122,15 +126,52 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
         profile = findViewById(R.id.profile);
         mylocate = findViewById(R.id.mylocation);
         userpphoto = findViewById(R.id.userphoto);
+        lrusername = findViewById(R.id.usernameprofile);
+        lruseremail = findViewById(R.id.useremailprofile);
+        buttons3 = findViewById(R.id.button3);
 
+        buttons3.setOnClickListener(view -> {
+            startActivity(new Intent(SecondMain.this, MapsActivity2.class));
+        });
 
-        String usernames = "fitrah";
-        String emails = Objects.requireNonNull(mAuth.getCurrentUser()).getEmail();
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference();
+
+// Specify the path to the image URL
+        String path = "UsersNewsFeedApp/posts/" + mAuth.getCurrentUser().getUid() + "/profile";
+
+        databaseRef.child(path).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String imageUrl = null;
+
+                    imageUrl = dataSnapshot.child("userimageUrl").getValue(String.class);
+
+                    String rusername =dataSnapshot.child("username").getValue(String.class);
+                    String ruseremail =dataSnapshot.child("useremail").getValue(String.class);
+                    lruseremail.setText(ruseremail);
+                    lrusername.setText(rusername);
+
+                    Picasso.get().load(imageUrl).into(userpphoto);
+
+                    Toast.makeText(SecondMain.this, "Image retrieve success", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(SecondMain.this, "Image retrieve failed", Toast.LENGTH_SHORT).show();
+                    // Handle the case when the image URL is not found in the database
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error case if the data retrieval is cancelled or fails
+            }
+        });
         uploadphoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openImagePicker();
-                uploadImage(selectedImageUri, usernames, emails);
             }
         });
 
@@ -464,12 +505,14 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        String usernames = "fitrah";
+        String emails = Objects.requireNonNull(mAuth.getCurrentUser()).getEmail();
         if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK) {
             if (data != null) {
                 selectedImageUri = data.getData();
                 System.out.println("debug 6 "+selectedImageUri);
                 userpphoto.setImageURI(selectedImageUri);
+                uploadImage(selectedImageUri, usernames, emails);
             }
         }
     }

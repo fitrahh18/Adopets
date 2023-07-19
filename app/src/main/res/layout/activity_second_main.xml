@@ -20,6 +20,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MapsActivity"/>
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="Show my location"
+            android:textColor="#000"
+            android:textSize="18dp"
+            android:backgroundTint="#FF9800"
+            android:layout_gravity="center_horizontal" />
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -94,6 +106,7 @@
                     android:layout_height="45dp"
                     android:src="@drawable/baseline_person_24"/>
                 <TextView
+                    android:id="@+id/usernameprofile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="username"
@@ -123,6 +136,7 @@
                     android:layout_height="45dp"
                     android:src="@drawable/baseline_email_24"/>
                 <TextView
+                    android:id="@+id/useremailprofile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="email"
