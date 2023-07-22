@@ -121,7 +121,7 @@ public class pickPhoto extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mStorage = FirebaseStorage.getInstance().getReference();
 
-        DatabaseReference databaseReference = mDatabase.child("UsersNewsFeedApp").child("posts");
+        DatabaseReference databaseReference = mDatabase.child("User").child("posts");
 
         markerSpinner = findViewById(R.id.markerSpinner);
 
@@ -299,7 +299,7 @@ public class pickPhoto extends AppCompatActivity {
     private void createPost(String imageUrl, String postName, String age, String breed, String gender, String species, String status, String date, double selectedLatitude, double selectedLongitude) {
         String userId = mAuth.getCurrentUser().getUid();
 
-        DatabaseReference postRef = mDatabase.child("UsersNewsFeedApp").child("posts").child(userId).push();
+        DatabaseReference postRef = mDatabase.child("User").child("posts").child(userId).push();
         String postId = postRef.getKey();
 
         Post post = new Post(postId, imageUrl, postName, age, breed,userId,gender,species,status,date,selectedLatitude,selectedLongitude);

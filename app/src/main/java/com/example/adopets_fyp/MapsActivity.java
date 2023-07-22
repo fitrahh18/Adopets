@@ -69,7 +69,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
         // Initialize Firebase Realtime Database
-        databaseReference = FirebaseDatabase.getInstance().getReference("UsersNewsFeedApp").child("posts");
+        databaseReference = FirebaseDatabase.getInstance().getReference("User").child("posts");
 
     }
 

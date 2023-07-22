@@ -16,13 +16,19 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
+public class PostAdapterPreview extends RecyclerView.Adapter<PostAdapterPreview.ViewHolder> {
 
     private List<Post> postList;
 
+    public interface OnItemClickListener {
+        void onItemClick(Post post);
+    }
 
-    public PostAdapter(List<Post> postList) {
+    private OnItemClickListener onItemClickListener;
+
+    public PostAdapterPreview(List<Post> postList, OnItemClickListener onItemClickListener) {
         this.postList = postList;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -50,26 +56,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    // Get the clicked post
-                    Post clickedPost = postList.get(holder.getAdapterPosition());
 
-                    // Start the ViewPostActivity and pass the post details
-                    Intent intent = new Intent(v.getContext(), ViewPost.class);
-                    intent.putExtra("postId", clickedPost.getPostId());
-                    intent.putExtra("imageUrl", clickedPost.getImageUrl());
-                    intent.putExtra("petName", clickedPost.getPetName());
-                    intent.putExtra("petAge", clickedPost.getPetAge());
-                    intent.putExtra("petGender", clickedPost.getPetGender());
-                    intent.putExtra("petBreed", clickedPost.getPetBreed());
-                    intent.putExtra("petSpecies", clickedPost.getPetSpecies());
-                    intent.putExtra("postDate", clickedPost.getFormattedDatePost());
-                    intent.putExtra("petStatus", clickedPost.getPetStatus());
-                    intent.putExtra("userId", clickedPost.getUserId());
-                    intent.putExtra("latitude", clickedPost.getLatitude());
-                    intent.putExtra("longitude", clickedPost.getLongitude());
-                    System.out.println("debug 17 "+clickedPost.getLatitude());
-                    v.getContext().startActivity(intent);
-                }
+                System.out.println("I'm here");
+                Post clickedPost = postList.get(position);
+
+                // Call the onItemClick method of the OnItemClickListener interface
+                // Pass the clicked post to the method
+                onItemClickListener.onItemClick(clickedPost);
+
+            }
         });
     }
 

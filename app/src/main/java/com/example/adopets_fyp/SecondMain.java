@@ -21,6 +21,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,7 +58,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -69,13 +73,22 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.maps.DirectionsApi;
+import com.google.maps.DirectionsApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.PendingResult;
+import com.google.maps.android.PolyUtil;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.TravelMode;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import kotlin.Unit;
@@ -84,18 +97,26 @@ import kotlin.jvm.functions.Function1;
 
 public class SecondMain extends AppCompatActivity implements OnMapReadyCallback {
 
+    private static final int REQUEST_CODE_LOCATION_PERMISSION = 1;
     private static final int REQUEST_IMAGE_PICK = 1;
+    private GoogleMap mMap;
+    private DatabaseReference mDatabase;
+    private boolean navigationMode = false;
     //homePagePostView
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
     private StorageReference mStorage;
+    private LatLng userLocation;
+    private Marker selectedMarker;
+    private Polyline currentPolyline;
+    private LatLng destinationLatLng;
+    Button btnCancelNavigation;
+    double latitudePost, longitudePost;
 
     private RecyclerView recyclerView;
     private PostAdapter postAdapter;
     private List<Post> postList;
 
     TextView uploadphoto;
-    Button buttons3;
     private Uri selectedImageUri;
     //others
     Button signOutBtn, mylocate;
@@ -103,6 +124,7 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
     GoogleSignInClient gsc;
     private MeowBottomNavigation bottomNavigation;
     RelativeLayout nearby, home, profile;
+    TextView phonenumber;
 
     ImageView userpphoto;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -128,16 +150,13 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
         userpphoto = findViewById(R.id.userphoto);
         lrusername = findViewById(R.id.usernameprofile);
         lruseremail = findViewById(R.id.useremailprofile);
-        buttons3 = findViewById(R.id.button3);
+        phonenumber = findViewById(R.id.userphoneprofile);
 
-        buttons3.setOnClickListener(view -> {
-            startActivity(new Intent(SecondMain.this, MapsActivity2.class));
-        });
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference();
 
 // Specify the path to the image URL
-        String path = "UsersNewsFeedApp/posts/" + mAuth.getCurrentUser().getUid() + "/profile";
+        String path = "User/posts/" + mAuth.getCurrentUser().getUid() + "/profile";
 
         databaseRef.child(path).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -146,11 +165,12 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
                     String imageUrl = null;
 
                     imageUrl = dataSnapshot.child("userimageUrl").getValue(String.class);
-
                     String rusername =dataSnapshot.child("username").getValue(String.class);
                     String ruseremail =dataSnapshot.child("useremail").getValue(String.class);
+                    String ruserphone=dataSnapshot.child("phone").getValue(String.class);
                     lruseremail.setText(ruseremail);
                     lrusername.setText(rusername);
+                    phonenumber.setText(ruserphone);
 
                     Picasso.get().load(imageUrl).into(userpphoto);
 
@@ -170,6 +190,7 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
         });
         uploadphoto.setOnClickListener(new View.OnClickListener() {
             @Override
+
             public void onClick(View v) {
                 openImagePicker();
             }
@@ -245,22 +266,7 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
             }
         });
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    updateMap(location.getLatitude(), location.getLongitude());
-
-                }
-            }
-        };
 
         postList = new ArrayList<>();
         postAdapter = new PostAdapter(postList);
@@ -269,21 +275,86 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
         recyclerView.setAdapter(postAdapter);
 
         fetchPosts();
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        assert mapFragment != null;
+        mapFragment.getMapAsync(this);
+
+        if (ContextCompat.checkSelfPermission(
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    SecondMain.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_CODE_LOCATION_PERMISSION
+            );
+        } else {
+            getCurrentLocation();
+        }
+
+        btnCancelNavigation = findViewById(R.id.btn_cancel_navigation);
+
+        if (navigationMode) {
+            btnCancelNavigation.setVisibility(View.VISIBLE);
+        } else if (!navigationMode) {
+            btnCancelNavigation.setVisibility(View.GONE);
+        }
+
     }
 
-    private void fetchPosts() {
-        DatabaseReference postsRef = mDatabase.child("UsersNewsFeedApp").child("posts").child(mAuth.getCurrentUser().getUid());
+    private void fetchPosts(String selectedValueSpecies, String selectedValueGender, String selectedValueAge) {
+        DatabaseReference postsRef = mDatabase.child("User").child("posts");
         postsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 postList.clear();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    for (DataSnapshot postsSnapshot : postSnapshot.getChildren()) {
+                        Post post = postsSnapshot.getValue(Post.class);
+                        if (post != null && post.getImageUrl() != null) {
+                            // Check if the post matches the selected search criteria
+                            if (selectedValueSpecies.isEmpty() || post.getPetSpecies().equals(selectedValueSpecies)) {
+                                if (selectedValueGender.isEmpty() || post.getPetGender().equals(selectedValueGender)) {
+                                    if (selectedValueAge.isEmpty() || post.getPetAge().equals(selectedValueAge)) {
 
-                    Post post = postSnapshot.getValue(Post.class);
-                    assert post != null;
-                    if (post.getImageUrl() != null) {
-                        postList.add(post);
+                                        postList.add(post);
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                postAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle database error
+            }
+        });
+    }
+
+    private void fetchPosts() {
+        DatabaseReference postsRef = mDatabase.child("User").child("posts");
+        postsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                postList.clear();
+
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    for (DataSnapshot postsSnapshot : postSnapshot.getChildren()) {
+
+                        Post post = postsSnapshot.getValue(Post.class);
+                        assert post != null;
+                        if (post.getImageUrl() != null) {
+                            postList.add(post);
+                        }
+
                     }
 
                 }
@@ -329,15 +400,6 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
     }
 
     private void showDialog() {
-      /*final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.bottomlayout);
-
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable((Color.TRANSPARENT)));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);*/
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Search Post");
@@ -367,12 +429,6 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
         ArrayAdapter<String> adapter3 = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, items3);
         spinner3.setAdapter(adapter3);
 
-        //Spinner location
-        AutoCompleteTextView spinner4 = dialogView.findViewById(R.id.locationa);
-
-        String[] items4 = getResources().getStringArray(R.array.spinner4_items);
-        ArrayAdapter<String> adapter4 = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, items4);
-        spinner4.setAdapter(adapter4);
 
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -382,8 +438,8 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
                 String selectedValueSpeacies = spinner1.getText().toString();
                 String selectedValueGender = spinner2.getText().toString();
                 String selectedValueAge = spinner3.getText().toString();
-                String selectedValueLocation = spinner4.getText().toString();
 
+                fetchPosts(selectedValueSpeacies, selectedValueGender, selectedValueAge);
             }
         });
 
@@ -420,82 +476,7 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        startLocationUpdates();
-    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopLocationUpdates();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startLocationUpdates();
-            }
-        }
-    }
-
-    private void startLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationProviderClient.requestLocationUpdates(createLocationRequest(), locationCallback, null);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-        }
-    }
-
-    private void stopLocationUpdates() {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-    }
-
-    private LocationRequest createLocationRequest() {
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(2000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        return locationRequest;
-    }
-
-    private void updateMap(double latitude, double longitude) {
-        LatLng latLng = new LatLng(latitude, longitude);
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-
-        // Clear existing markers
-        googleMap.clear();
-
-        // Create a marker for the current location
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(latLng)
-                .title("Current Location");
-        googleMap.addMarker(markerOptions);
-    }
-
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-        googleMap = map;
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
-
-        // Check for location permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // Permission granted, enable the location layer
-            try {
-                googleMap.setMyLocationEnabled(true);
-            } catch (SecurityException e) {
-                // Exception thrown if permission is denied
-                // Handle accordingly (e.g., show a message, disable location features)
-            }
-        } else {
-            // Permission not granted, request it
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-        }
-    }
 
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -537,17 +518,253 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
     private void createPost(String imageUrl, String username, String email) {
         String userId = mAuth.getCurrentUser().getUid();
 
-        DatabaseReference postRef = mDatabase.child("UsersNewsFeedApp").child("posts").child(userId).child("profile");
-        String postId = postRef.getKey();
+        DatabaseReference postRef = mDatabase.child("User").child("posts").child(userId).child("profile");
 
-        User user = new User(imageUrl, username, email);
-        postRef.setValue(user).addOnCompleteListener(task -> {
+        // Create a map to hold the updated values
+        Map<String, Object> updateValues = new HashMap<>();
+        updateValues.put("userimageUrl", imageUrl);
+
+        postRef.updateChildren(updateValues).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(SecondMain.this, "Post created successfully", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(SecondMain.this, SecondMain.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(SecondMain.this, "Failed to create post", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    //map activity
+    private void getCurrentLocation() {
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(2000);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+        }
+        fusedLocationProviderClient.requestLocationUpdates(
+                locationRequest, new LocationCallback() {
+                    @Override
+                    public void onLocationResult(@NonNull LocationResult locationResult) {
+                        super.onLocationResult(locationResult);
+                        Location location = locationResult.getLastLocation();
+                        if (location != null) {
+
+                            if (navigationMode) {
+                                btnCancelNavigation.setVisibility(View.VISIBLE);
+                            } else if (!navigationMode) {
+                                btnCancelNavigation.setVisibility(View.GONE);
+                            }
+
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+                            userLocation = new LatLng(latitude, longitude);
+                            focusCameraOnLocation(userLocation);
+                            Intent intent = getIntent();
+                            latitudePost= intent.getDoubleExtra("latitudes",0);
+                            longitudePost= intent.getDoubleExtra("longitudes",0);
+                            System.out.println("debug 19 "+userLocation);
+                            if (latitudePost!=0 && longitudePost!=0&&userLocation!=null){
+                                LatLng postdestinationLatLng=new LatLng(latitudePost, longitudePost);
+                                navigationMode=true;
+                                drawPolyline(userLocation,postdestinationLatLng);
+                                focusCameraOnLocation(userLocation);
+                            }else if (destinationLatLng != null) {
+                                drawPolyline(userLocation, destinationLatLng);
+                            }
+                        }
+                    }
+                }, getMainLooper()
+        );
+
+        return;
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_LOCATION_PERMISSION && grantResults.length > 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation();
+            } else {
+                Toast.makeText(
+                        this,
+                        "Permission denied!",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+            getCurrentLocation();
+        }
+
+        // Retrieve marked locations from Firebase Realtime Database
+        DatabaseReference databaseReference = mDatabase.child("User").child("posts");
+        DatabaseReference locationsRef = databaseReference;
+        locationsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    DataSnapshot locationSnapshot = userSnapshot.child("locations");
+                    for (DataSnapshot locationsSnapshot : locationSnapshot.getChildren()) {
+                        double latitude = Double.parseDouble(locationsSnapshot.child("latitude").getValue().toString());
+                        double longitude = Double.parseDouble(locationsSnapshot.child("longitude").getValue().toString());
+                        String placename = locationsSnapshot.child("markerName").getValue(String.class);
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(placename));
+                        marker.setTag(locationSnapshot.getKey());
+
+                        // Set up marker click listener
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                selectedMarker = marker;
+                                showNavigationDialog();
+                                return true;
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(
+                        SecondMain.this,
+                        "Failed to retrieve marked locations from Firebase.",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
+
+        // Call the method to add the "Cancel Navigation" button click listener
+        setupCancelNavigationButton();
+    }
+    private void showNavigationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Start Navigation");
+        builder.setMessage("Do you want to navigate to " + selectedMarker.getTitle() + "?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                navigationMode = true;
+                // Start navigation
+                if (userLocation != null) {
+                    destinationLatLng = selectedMarker.getPosition();
+                    drawPolyline(userLocation, destinationLatLng);
+                    focusCameraOnLocation(userLocation); // Focus camera on user's current location
+                } else {
+                    Toast.makeText(SecondMain.this, "User location not available.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+    }
+
+    private void drawPolyline(LatLng origin, LatLng destination) {
+        GeoApiContext context = new GeoApiContext.Builder()
+                .apiKey("AIzaSyCuBp-Fnefr1Xe5RxLgxMh3D2OzOQzxyaE")
+                .build();
+
+        DirectionsApiRequest req = DirectionsApi.getDirections(context, origin.latitude + "," + origin.longitude,
+                        destination.latitude + "," + destination.longitude)
+                .mode(TravelMode.DRIVING)
+                .optimizeWaypoints(true);
+
+        req.setCallback(new PendingResult.Callback<DirectionsResult>() {
+            @Override
+            public void onResult(DirectionsResult result) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (currentPolyline == null) {
+                            // Create a new polyline if it doesn't exist
+                            List<LatLng> decodedPath = PolyUtil.decode(result.routes[0].overviewPolyline.getEncodedPath());
+                            currentPolyline = mMap.addPolyline(new PolylineOptions()
+                                    .addAll(decodedPath)
+                                    .width(12)
+                                    .color(Color.BLUE));
+                        } else {
+                            // Update the existing polyline's points
+                            currentPolyline.setPoints(PolyUtil.decode(result.routes[0].overviewPolyline.getEncodedPath()));
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+                showDirectionErrorToast();
+                Log.e("DirectionsAPI", "Error: " + e.getMessage());
+            }
+        });
+    }
+
+    // Method to focus the camera on a given location
+    private void focusCameraOnLocation(LatLng location) {
+        if (mMap != null&&navigationMode) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 18f));
+        } else if(mMap != null && !navigationMode){
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
+        }
+    }
+    // Method to cancel navigation and remove the polyline
+    private void cancelNavigation() {
+        if (currentPolyline != null) {
+            currentPolyline.remove();
+            currentPolyline = null;
+
+        }
+        if (latitudePost!=0 && longitudePost!=0){
+            Intent intent = new Intent(SecondMain.this,SecondMain.class);
+            startActivity(intent);
+        }
+
+        destinationLatLng = null; // Reset the destination
+
+        navigationMode = false;
+
+        latitudePost=0;
+        longitudePost=0;
+    }
+
+    // Method to add the "Cancel Navigation" button click listener
+    private void setupCancelNavigationButton() {
+
+        btnCancelNavigation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelNavigation();
+                // Optionally, reset the camera focus to the user's current location after canceling
+                if (userLocation != null) {
+                    focusCameraOnLocation(userLocation);
+                }
+            }
+        });
+    }
+
+
+    private void showDirectionErrorToast() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(SecondMain.this, "Failed to get directions.", Toast.LENGTH_SHORT).show();
             }
         });
     }

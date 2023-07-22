@@ -6,10 +6,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.adopets_fyp.R;
@@ -38,6 +45,7 @@ import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.PendingResult;
+import com.google.maps.android.PolyUtil;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.TravelMode;
@@ -54,7 +62,11 @@ public class MapsActivity2 extends AppCompatActivity implements OnMapReadyCallba
     private LatLng userLocation;
     private Marker selectedMarker;
     private Polyline currentPolyline;
+    private LatLng destinationLatLng;
+    Button btnCancelNavigation;
+    double latitudePost, longitudePost;
 
+    private boolean navigationMode = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +78,7 @@ public class MapsActivity2 extends AppCompatActivity implements OnMapReadyCallba
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+        assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
         if (ContextCompat.checkSelfPermission(
@@ -79,7 +92,17 @@ public class MapsActivity2 extends AppCompatActivity implements OnMapReadyCallba
         } else {
             getCurrentLocation();
         }
+
+        btnCancelNavigation = findViewById(R.id.btn_cancel_navigation);
+
+        if (navigationMode) {
+            btnCancelNavigation.setVisibility(View.VISIBLE);
+        } else if (!navigationMode) {
+            btnCancelNavigation.setVisibility(View.GONE);
+        }
+
     }
+
 
     private void getCurrentLocation() {
         LocationRequest locationRequest = new LocationRequest();
@@ -96,22 +119,37 @@ public class MapsActivity2 extends AppCompatActivity implements OnMapReadyCallba
                     public void onLocationResult(@NonNull LocationResult locationResult) {
                         super.onLocationResult(locationResult);
                         Location location = locationResult.getLastLocation();
-                        System.out.println("debug 15" + location);
                         if (location != null) {
+
+                            if (navigationMode) {
+                                btnCancelNavigation.setVisibility(View.VISIBLE);
+                            } else if (!navigationMode) {
+                                btnCancelNavigation.setVisibility(View.GONE);
+                            }
+
                             double latitude = location.getLatitude();
                             double longitude = location.getLongitude();
                             userLocation = new LatLng(latitude, longitude);
-                            System.out.println("debug 11" + userLocation);
-                            Toast.makeText(
-                                    MapsActivity2.this,
-                                    "Latitude: " + latitude + ", Longitude: " + longitude,
-                                    Toast.LENGTH_SHORT
-                            ).show();
+                            focusCameraOnLocation(userLocation);
+                            Intent intent = getIntent();
+                            latitudePost= intent.getDoubleExtra("latitudes",0);
+                            longitudePost= intent.getDoubleExtra("longitudes",0);
+                            System.out.println("debug 19 "+userLocation);
+                            if (latitudePost!=0 && longitudePost!=0&&userLocation!=null){
+                                LatLng postdestinationLatLng=new LatLng(latitudePost, longitudePost);
+                                navigationMode=true;
+                                drawPolyline(userLocation,postdestinationLatLng);
+                                focusCameraOnLocation(userLocation);
+                            }else if (destinationLatLng != null) {
+                                drawPolyline(userLocation, destinationLatLng);
+                            }
                         }
                     }
                 }, getMainLooper()
         );
+
         return;
+
     }
 
     @Override
@@ -136,30 +174,36 @@ public class MapsActivity2 extends AppCompatActivity implements OnMapReadyCallba
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+            getCurrentLocation();
         }
 
         // Retrieve marked locations from Firebase Realtime Database
-        DatabaseReference databaseReference = mDatabase.child("UsersNewsFeedApp").child("posts");
-        DatabaseReference locationsRef = databaseReference.child(mAuth.getCurrentUser().getUid()).child("locations");
+        DatabaseReference databaseReference = mDatabase.child("User").child("posts");
+        DatabaseReference locationsRef = databaseReference;
         locationsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot locationSnapshot : dataSnapshot.getChildren()) {
-                    double latitude = Double.parseDouble(locationSnapshot.child("latitude").getValue().toString());
-                    double longitude = Double.parseDouble(locationSnapshot.child("longitude").getValue().toString());
-                    String placename = locationSnapshot.child("markerName").getValue(String.class);
-                    LatLng latLng = new LatLng(latitude, longitude);
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(placename));
-                    marker.setTag(locationSnapshot.getKey());
-                }
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    DataSnapshot locationSnapshot = userSnapshot.child("locations");
+                    for (DataSnapshot locationsSnapshot : locationSnapshot.getChildren()) {
+                        double latitude = Double.parseDouble(locationsSnapshot.child("latitude").getValue().toString());
+                        double longitude = Double.parseDouble(locationsSnapshot.child("longitude").getValue().toString());
+                        String placename = locationsSnapshot.child("markerName").getValue(String.class);
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        Marker marker = mMap.addMarker(new MarkerOptions().position(latLng).title(placename));
+                        marker.setTag(locationSnapshot.getKey());
 
-                // Move camera to the first marked location
-                /*if (dataSnapshot.hasChildren()) {
-                    double latitude = Double.parseDouble(dataSnapshot.child("0/latitude").getValue().toString());
-                    double longitude = Double.parseDouble(dataSnapshot.child("0/longitude").getValue().toString());
-                    LatLng firstLatLng = new LatLng(latitude, longitude);
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstLatLng, 12));*/
-                //}
+                        // Set up marker click listener
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                selectedMarker = marker;
+                                showNavigationDialog();
+                                return true;
+                            }
+                        });
+                    }
+                }
             }
 
             @Override
@@ -172,80 +216,126 @@ public class MapsActivity2 extends AppCompatActivity implements OnMapReadyCallba
             }
         });
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        // Call the method to add the "Cancel Navigation" button click listener
+        setupCancelNavigationButton();
+    }
+    private void showNavigationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Start Navigation");
+        builder.setMessage("Do you want to navigate to " + selectedMarker.getTitle() + "?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
-                marker.showInfoWindow();
+            public void onClick(DialogInterface dialog, int which) {
+                navigationMode = true;
+                // Start navigation
+                if (userLocation != null) {
+                    destinationLatLng = selectedMarker.getPosition();
+                    drawPolyline(userLocation, destinationLatLng);
+                    focusCameraOnLocation(userLocation); // Focus camera on user's current location
+                } else {
+                    Toast.makeText(MapsActivity2.this, "User location not available.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+    }
 
-                // Get the selected marker's position
-                selectedMarker = marker;
+    private void drawPolyline(LatLng origin, LatLng destination) {
+        GeoApiContext context = new GeoApiContext.Builder()
+                .apiKey("AIzaSyCuBp-Fnefr1Xe5RxLgxMh3D2OzOQzxyaE")
+                .build();
 
-                // Draw the polyline
-                drawPolyline();
+        DirectionsApiRequest req = DirectionsApi.getDirections(context, origin.latitude + "," + origin.longitude,
+                        destination.latitude + "," + destination.longitude)
+                .mode(TravelMode.DRIVING)
+                .optimizeWaypoints(true);
 
-                return true;
+        req.setCallback(new PendingResult.Callback<DirectionsResult>() {
+            @Override
+            public void onResult(DirectionsResult result) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (currentPolyline == null) {
+                            // Create a new polyline if it doesn't exist
+                            List<LatLng> decodedPath = PolyUtil.decode(result.routes[0].overviewPolyline.getEncodedPath());
+                            currentPolyline = mMap.addPolyline(new PolylineOptions()
+                                    .addAll(decodedPath)
+                                    .width(12)
+                                    .color(Color.BLUE));
+                        } else {
+                            // Update the existing polyline's points
+                            currentPolyline.setPoints(PolyUtil.decode(result.routes[0].overviewPolyline.getEncodedPath()));
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Throwable e) {
+                showDirectionErrorToast();
+                Log.e("DirectionsAPI", "Error: " + e.getMessage());
             }
         });
     }
 
-    private void drawPolyline() {
-        if (userLocation != null && selectedMarker != null) {
-            // Remove any existing polyline
-            if (currentPolyline != null) {
-                currentPolyline.remove();
-            }
+    // Method to focus the camera on a given location
+    private void focusCameraOnLocation(LatLng location) {
+        if (mMap != null&&navigationMode) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 18f));
+        } else if(mMap != null && !navigationMode){
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
+        }
+    }
+    // Method to cancel navigation and remove the polyline
+    private void cancelNavigation() {
+        if (currentPolyline != null) {
+            currentPolyline.remove();
+            currentPolyline = null;
 
-            LatLng destinationLatLng = selectedMarker.getPosition();
-
-            // Create a GeoApiContext with your API key
-            GeoApiContext geoApiContext = new GeoApiContext.Builder()
-                    .apiKey("AIzaSyDMk5qP6IKnAODrp8NHzt4iQbS4EHGdTVs")
-                    .build();
-
-            // Calculate directions using the Directions API
-            DirectionsApiRequest directionsRequest = DirectionsApi.newRequest(geoApiContext)
-                    .mode(TravelMode.DRIVING)
-                    .origin(new com.google.maps.model.LatLng(userLocation.latitude, userLocation.longitude))
-                    .destination(new com.google.maps.model.LatLng(destinationLatLng.latitude, destinationLatLng.longitude));
-
-            directionsRequest.setCallback(new PendingResult.Callback<DirectionsResult>() {
-                @Override
-                public void onResult(DirectionsResult result) {
-                    // Get the first route from the result
-                    if (result.routes != null && result.routes.length > 0) {
-                        DirectionsRoute route = result.routes[0];
-
-                        // Extract the polyline points from the route
-                        List<LatLng> polylinePoints = new ArrayList<>();
-                        for (com.google.maps.model.LatLng latLng : route.overviewPolyline.decodePath()) {
-                            polylinePoints.add(new LatLng(latLng.lat, latLng.lng));
-                        }
-
-                        // Draw the polyline on the map
-                        PolylineOptions polylineOptions = new PolylineOptions()
-                                .addAll(polylinePoints)
-                                .width(8)
-                                .color(Color.BLUE);
-                        currentPolyline = mMap.addPolyline(polylineOptions);
-
-                        // Adjust the map bounds to include the polyline and both markers
-                        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder()
-                                .include(userLocation)
-                                .include(destinationLatLng);
-                        for (LatLng point : polylinePoints) {
-                            boundsBuilder.include(point);
-                        }
-                        LatLngBounds bounds = boundsBuilder.build();
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable e) {
-                    Toast.makeText(MapsActivity2.this, "Failed to retrieve directions", Toast.LENGTH_SHORT).show();
-                }
-            });
+        }
+        if (latitudePost!=0 && longitudePost!=0){
+            Intent intent = new Intent(MapsActivity2.this,SecondMain.class);
+            startActivity(intent);
         }
 
+        destinationLatLng = null; // Reset the destination
+
+        navigationMode = false;
+
+        latitudePost=0;
+        longitudePost=0;
     }
+
+    // Method to add the "Cancel Navigation" button click listener
+    private void setupCancelNavigationButton() {
+
+        btnCancelNavigation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelNavigation();
+                // Optionally, reset the camera focus to the user's current location after canceling
+                if (userLocation != null) {
+                    focusCameraOnLocation(userLocation);
+                }
+            }
+        });
+    }
+
+
+    private void showDirectionErrorToast() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MapsActivity2.this, "Failed to get directions.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }

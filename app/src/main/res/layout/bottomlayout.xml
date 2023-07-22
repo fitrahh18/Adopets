@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/dialog_bg">
 
+    <!-- Species AutoCompleteTextView with TextInputLayout -->
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
@@ -21,6 +22,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Gender AutoCompleteTextView with TextInputLayout -->
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
@@ -37,6 +39,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Age AutoCompleteTextView with TextInputLayout -->
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
@@ -53,29 +56,15 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="210dp"
-        android:hint="@string/location">
-
-        <AutoCompleteTextView
-            android:id="@+id/locationa"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!--<Button
-        android:id="@+id/submita"
-        android:layout_marginTop="300dp"
-        android:layout_width="match_parent"
+    <!-- Clear button -->
+    <Button
+        android:id="@+id/clear"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="230dp"
+        android:layout_gravity="center_horizontal"
         android:layout_weight="1"
-        android:text="Submit"
-        android:backgroundTint="#3F51B5"/>-->
+        android:text="Clear"
+        android:backgroundTint="#3F51B5" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
