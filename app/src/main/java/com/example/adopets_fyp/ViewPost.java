@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
@@ -60,7 +61,9 @@ public class ViewPost extends AppCompatActivity {
         String imageUrl = intent.getStringExtra("imageUrl");
         double latitude = intent.getDoubleExtra("latitude",0);
         double longitude = intent.getDoubleExtra("longitude",0);
-        System.out.println("debug 17"+latitude);
+        String receiverUid = intent.getStringExtra("receiverUid");
+        String senderUsername = intent.getStringExtra("senderUsername");
+        System.out.println("receiver uid : "+receiverUid);
 
         ImageView userpphoto = findViewById(R.id.ivProfile);
         TextView lrusername = findViewById(R.id.title);
@@ -87,10 +90,14 @@ public class ViewPost extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        getcontact.setOnClickListener(view -> {
-            startActivity(new Intent(ViewPost.this, Chat.class));
-        });
 
+        getcontact.setOnClickListener(view -> {
+            Intent intents = new Intent(this, ChatActivity.class);
+            intents.putExtra("receiverUid", receiverUid);
+            intent.putExtra("selectedUsername",senderUsername);
+            System.out.println("ReceiverUID : "+ receiverUid);
+            startActivity(intents);
+        });
 
         Glide.with(this)
                 .load(imageUrl).into(petimage);
@@ -110,7 +117,7 @@ public class ViewPost extends AppCompatActivity {
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference();
 
 // Specify the path to the image URL
-        String path = "User/posts/" + mAuth.getCurrentUser().getUid() + "/profile";
+        String path = "User/posts/" + receiverUid + "/profile";
 
         databaseRef.child(path).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

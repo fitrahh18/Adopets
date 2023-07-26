@@ -42,7 +42,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toEndOf="@+id/ivProfile"
-                    app:layout_constraintEnd_toStartOf="@+id/menu"
                     android:layout_margin="10dp"
                     android:text="username"
                     android:textSize="16sp"
@@ -56,7 +55,7 @@
                 android:id="@+id/ivPost"
                 android:layout_width="match_parent"
                 android:layout_height="500dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="1dp"
                 android:src="@drawable/kucing"
                 app:layout_constraintTop_toBottomOf="@+id/c1Top" />
 

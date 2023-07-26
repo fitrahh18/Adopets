@@ -1,5 +1,7 @@
 package com.example.adopets_fyp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,17 +14,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
+    private final Boolean act;
     private List<Post> postList;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
 
+    public PostAdapter(List<Post> postList,Boolean act) {
 
-    public PostAdapter(List<Post> postList) {
         this.postList = postList;
+        this.act=act;
     }
 
     @NonNull
@@ -52,6 +63,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             public void onClick(View v) {
                     // Get the clicked post
                     Post clickedPost = postList.get(holder.getAdapterPosition());
+                    User user = new User();
 
                     // Start the ViewPostActivity and pass the post details
                     Intent intent = new Intent(v.getContext(), ViewPost.class);
@@ -67,10 +79,59 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     intent.putExtra("userId", clickedPost.getUserId());
                     intent.putExtra("latitude", clickedPost.getLatitude());
                     intent.putExtra("longitude", clickedPost.getLongitude());
-                    System.out.println("debug 17 "+clickedPost.getLatitude());
+                    intent.putExtra("receiverUid", clickedPost.getUserId());
+                    intent.putExtra("senderUsername", user.getUsername());
+                    System.out.println("receiver uid : "+clickedPost.getUserId());
                     v.getContext().startActivity(intent);
                 }
         });
+
+        if (act) {
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(holder.itemView.getContext());
+                    builder.setTitle("Delete Post");
+                    builder.setMessage("Are you sure you want to delete this post?");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Post clickedPost = postList.get(holder.getAdapterPosition());
+                            removePostFromFirebase(clickedPost.getPostId());
+                        }
+                    });
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // User clicked "No," so do nothing and dismiss the dialog
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.show();
+                    return false;
+                }
+            });
+        }
+    }
+
+    private void removePostFromFirebase(String postId) {
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        String currentUserId = mAuth.getCurrentUser().getUid();
+        DatabaseReference postRef = mDatabase.child("User").child("posts").child(currentUserId).child(postId);
+        postRef.removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Post removal from Firebase is successful.
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Handle the error that occurred during post removal.
+                    }
+                });
     }
 
     @Override

@@ -85,8 +85,15 @@
                 android:layout_marginTop="10dp"
                 android:text="Upload photo"
                 android:textColor="#fff"
-                android:textSize="23dp"
+                android:textSize="18dp"
                 android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="310dp"
+                android:src="@drawable/baseline_edit_24"/>
 
         </LinearLayout>
 
@@ -115,13 +122,6 @@
                     android:paddingLeft="15dp"
                     android:layout_gravity="center_vertical"/>
 
-                <ImageView
-                    android:id="@+id/editusernamebutton"
-                    android:layout_width= "wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/baseline_edit_24"
-                    android:layout_marginLeft="165dp"
-                    />
 
             </LinearLayout>
 

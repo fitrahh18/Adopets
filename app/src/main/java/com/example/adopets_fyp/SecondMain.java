@@ -39,6 +39,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -65,6 +66,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -115,7 +118,7 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
     private RecyclerView recyclerView;
     private PostAdapter postAdapter;
     private List<Post> postList;
-
+    ImageButton editbtn;
     TextView uploadphoto;
     private Uri selectedImageUri;
     //others
@@ -124,7 +127,12 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
     GoogleSignInClient gsc;
     private MeowBottomNavigation bottomNavigation;
     RelativeLayout nearby, home, profile;
-    TextView phonenumber;
+    TextView phonenumber,mypostbt;
+    private EditText editnames;
+    private EditText editphones;
+    FirebaseDatabase db;
+    FirebaseUser user;
+    private DatabaseReference reference;
 
     ImageView userpphoto;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -151,42 +159,133 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
         lrusername = findViewById(R.id.usernameprofile);
         lruseremail = findViewById(R.id.useremailprofile);
         phonenumber = findViewById(R.id.userphoneprofile);
+        editbtn = findViewById(R.id.btn_edit);
+        mypostbt = findViewById(R.id.mypost);
+
+        db = FirebaseDatabase.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
+            reference = db.getReference().child("User").child("posts").child(userId).child("profile");
+        }
+        mypostbt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start the MyPostsActivity when the "mypost" ImageView is clicked
+                Intent intent = new Intent(SecondMain.this, MyPostActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        editbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SecondMain.this);
+                LayoutInflater inflater = getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.dialog_update_user, null);
+                builder.setView(dialogView);
+
+                // Find the EditText views inside the dialog layout
+                EditText editnames = dialogView.findViewById(R.id.editname);
+                EditText editphones = dialogView.findViewById(R.id.editphone);
+
+                builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String name = editnames.getText().toString();
+                        String phone = editphones.getText().toString();
+                        // Create a HashMap to update the user's data
+                        HashMap<String, Object> updateData = new HashMap<>();
+                        updateData.put("username", name);
+                        updateData.put("phone", phone);
+
+                        // Update the user's data in the database
+                        reference.updateChildren(updateData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    // Data updated successfully
+                                    Toast.makeText(SecondMain.this, "Details updated.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // Failed to update data
+                                    Toast.makeText(SecondMain.this, "Failed to update details.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // User clicked "No," so do nothing and dismiss the dialog
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog updateDialog = builder.create();
+                updateDialog.show();
+            }
+        });
+
 
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference();
 
 // Specify the path to the image URL
-        String path = "User/posts/" + mAuth.getCurrentUser().getUid() + "/profile";
+        String path = "User/posts/" + mAuth.getCurrentUser().getUid();
 
-        databaseRef.child(path).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseRef.child(path).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if (snapshot.exists()) {
                     String imageUrl = null;
 
-                    imageUrl = dataSnapshot.child("userimageUrl").getValue(String.class);
-                    String rusername =dataSnapshot.child("username").getValue(String.class);
-                    String ruseremail =dataSnapshot.child("useremail").getValue(String.class);
-                    String ruserphone=dataSnapshot.child("phone").getValue(String.class);
+                    imageUrl = snapshot.child("userimageUrl").getValue(String.class);
+                    String rusername =snapshot.child("username").getValue(String.class);
+                    String ruseremail =snapshot.child("useremail").getValue(String.class);
+                    String ruserphone=snapshot.child("phone").getValue(String.class);
                     lruseremail.setText(ruseremail);
                     lrusername.setText(rusername);
                     phonenumber.setText(ruserphone);
 
                     Picasso.get().load(imageUrl).into(userpphoto);
 
-                    Toast.makeText(SecondMain.this, "Image retrieve success", Toast.LENGTH_SHORT).show();
-
-                } else {
-                    Toast.makeText(SecondMain.this, "Image retrieve failed", Toast.LENGTH_SHORT).show();
-                    // Handle the case when the image URL is not found in the database
                 }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if (snapshot.exists()) {
+                    String imageUrl = null;
+
+                    imageUrl = snapshot.child("userimageUrl").getValue(String.class);
+                    String rusername =snapshot.child("username").getValue(String.class);
+                    String ruseremail =snapshot.child("useremail").getValue(String.class);
+                    String ruserphone=snapshot.child("phone").getValue(String.class);
+                    lruseremail.setText(ruseremail);
+                    lrusername.setText(rusername);
+                    phonenumber.setText(ruserphone);
+
+                    Picasso.get().load(imageUrl).into(userpphoto);
+
+                }
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
 
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle the error case if the data retrieval is cancelled or fails
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+
         });
         uploadphoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -269,7 +368,7 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
 
 
         postList = new ArrayList<>();
-        postAdapter = new PostAdapter(postList);
+        postAdapter = new PostAdapter(postList,false);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(postAdapter);
@@ -392,6 +491,10 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
                 showDialog();
                 break;
 
+            case R.id.chating:
+
+                startActivity(new Intent(SecondMain.this, ReceiverChatListActivity.class));
+                break;
             default:
 
                 break;
@@ -768,4 +871,5 @@ public class SecondMain extends AppCompatActivity implements OnMapReadyCallback 
             }
         });
     }
+
 }

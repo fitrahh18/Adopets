@@ -1,35 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#0C1B3A">
+
+    <TextView
+        android:id="@+id/tvSenderUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="10dp"
+        android:text="Username"
+        android:textColor="@color/white"
+        android:textSize="26sp" />
 
     <ListView
-        android:id="@+id/messageListView"
+        android:id="@+id/lvMessages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/llMessageInput"
+        android:layout_below="@+id/tvSenderUsername"
         android:divider="@android:color/transparent"
-        android:dividerHeight="16dp"
-        android:stackFromBottom="true" />
+        android:dividerHeight="5dp" />
 
     <LinearLayout
-        android:id="@+id/inputLayout"
+        android:id="@+id/llMessageInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="5dp">
 
         <EditText
-            android:id="@+id/messageEditText"
+            android:id="@+id/etMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Type your message here" />
+            android:hint="Type your message..."
+            android:textColorHint="#BAB7B7"
+            android:textColor="@color/white"
+            android:maxLines="3" />
 
-        <Button
-            android:id="@+id/sendButton"
+        <ImageButton
+            android:id="@+id/btnSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send" />
+            android:src="@android:drawable/ic_menu_send"
+            android:contentDescription="Send Message" />
     </LinearLayout>
 </RelativeLayout>

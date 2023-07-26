@@ -66,19 +66,19 @@ public class pickPhoto extends AppCompatActivity {
 
     private String[] speciesArray = {"Cat", "Dog", "Hamster", "Tortoise", "Rabbit", "Bird", "Guinea Pigs", "Hedgehog", "Lizard", "Ferret", "Fish", "Iguana", "Other"};
     private String[][] breedsArray = {
-            {"Siamese", "British Short Hair", "Maine Coon", "Persian", "Ragdoll", "Sphynx", "Scottish Fold", "Munchkin", "American Shorthair", "American Curl", "British Longhair"}, // Cat breeds
-            {"Bulldog", "German Shepherd", "Golden Retriever"}, // Dog breeds
-            {"Mongolian", "Roborovski", "Mesocricetus"}, // Hamster breeds
-            {"Tortoise Breed 1", "Tortoise Breed 2", "Tortoise Breed 3"}, // Tortoise breeds
-            {"Rabbit Breed 1", "Rabbit Breed 2", "Rabbit Breed 3"}, // Rabbit breeds
-            {"Bird Breed 1", "Bird Breed 2", "Bird Breed 3"}, // Bird breeds
-            {"Guinea Pig Breed 1", "Guinea Pig Breed 2", "Guinea Pig Breed 3"}, // Guinea Pig breeds
-            {"Hedgehog Breed 1", "Hedgehog Breed 2", "Hedgehog Breed 3"}, // Hedgehog breeds
-            {"Lizard Breed 1", "Lizard Breed 2", "Lizard Breed 3"}, // Lizard breeds
-            {"Ferret Breed 1", "Ferret Breed 2", "Ferret Breed 3"}, // Ferret breeds
-            {"Fish Breed 1", "Fish Breed 2", "Fish Breed 3"}, // Fish breeds
-            {"Iguana Breed 1", "Iguana Breed 2", "Iguana Breed 3"}, // Iguana breeds
-            {"Other Breed 1", "Other Breed 2", "Other Breed 3"} // Other breeds
+            {"Siamese", "British Short Hair", "Maine Coon", "Persian", "Ragdoll", "Sphynx", "Scottish Fold", "Munchkin", "American Shorthair", "American Curl", "British Longhair","Domestic Short Hair","Other"}, // Cat breeds
+            {"Bulldog", "German Shepherd", "Golden Retriever","Husky","Poodle","Chihuahua","Pomeranian","Shih Tzu","Samoyed","Dalmatian","Shiba Inu","Terrier","Yorkshire Terrier","Chow Chow","Maltese","Rottweiler","Afghan Hound","Border Collie","Other"}, // Dog breeds
+            {"Mongolian", "Roborovski", "Mesocricetus","Campbell Dwarf","Long-tailed Dwarf","Cricetulus","Syrian","Chinese","European","Armenian","Other"}, // Hamster breeds
+            {"Russian", "Red-footed", "Egyptian","Yellow-footed","African spurred","Hermann","Leopard","Galapagos","Gopher","Other"}, // Tortoise breeds
+            {"Flemish", "Rex", "Netherland Dwarf","French Lop","American Fuzzy Lop","Polish","Havana","Holland Lop","Dwarf Hotot","English Lop","Rhinelander","Belgian","Argente","Plush Lop","Brazilian Domestic","Czech Red","Other"}, // Rabbit breeds
+            {"Canary", "Cockatiel", "Pigeon","Cockatoo","Budgerigar","Hyacinth Macaw","Dove","Parrot","Macaw","Parrotlet","Budgie","Lovebirds","Conures","Toucan","Crow","Finch","Jay Bird","Starling","Thrush","Siskin","Other"}, // Bird breeds
+            {"Peruvian", "Abyssinian", "American","Teddy","Texel","Rex","Himalayan","Sheltie","American Crested","English Crested","Satin","Skinny pig"}, // Guinea Pig breeds
+            {"European", "Long-eared", "Algerian","Desert","Indian","Daurian","Samoli","Amur","Hugh","Bare-bellied","Southern African","Northen White Breasted","Brandt","Other"}, // Hedgehog breeds
+            {"Gecko", "Skink", "Green Anole","Chameleon","Monitor","Whiptail","Axolotl","Frilled Dragon","Caiman","Chinese Water Dragon","Other"}, // Lizard breeds
+            {"Albino", "Sable", "Black Sable","Chocolate","Cinnamon","Champagne","Dark-eyed White","Black","Other"}, // Ferret breeds
+            {"Guppy", "Beta", "Goldfish","Koi","Tetra","Angelfish","Lionhead","Gourami","Clownfish","Catfish","Molly","Loach","Barb","Other"}, // Fish breeds
+            {"Marine", "Desert", "Galapagos land","Spiny-tailed","Jamaican","Fiji Banded","Cyclura","Fiji Crested","Antillean","Other"}, // Iguana breeds
+            {"Other"} // Other breeds
     };
     AutoCompleteTextView speciesAutoCompleteTextView;
     AutoCompleteTextView breedsAutoCompleteTextView;
@@ -237,14 +237,12 @@ public class pickPhoto extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String item = adapterView.getItemAtPosition(i).toString();
-                Toast.makeText(pickPhoto.this, "Item: " + item, Toast.LENGTH_SHORT).show();
             }
         });
         autoCompleteTextView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String item3 = adapterView.getItemAtPosition(i).toString();
-                Toast.makeText(pickPhoto.this, "Item: " + item3, Toast.LENGTH_SHORT).show();
             }
         });
 

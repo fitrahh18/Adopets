@@ -5,12 +5,26 @@ public class User {
     private String username;
     private String useremail;
 
+    private String phone;
+
+    public User() {
+        //for firebase
+    }
+
+    public User(String phone, String useremail, String userimageUrl, String username) {
+        this.phone = phone;
+        this.useremail = useremail;
+        this.userimageUrl = userimageUrl;
+        this.username = username;
+    }
+
     public User(String userimageUrl) {
         this.userimageUrl = userimageUrl;
 
     }
-    public User() {
 
+    public String getPhone() {
+        return phone;
     }
 
     public String getUserimageUrl() {

@@ -12,7 +12,7 @@
 
         <ImageView
             android:id="@+id/pickimage"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="450dp"
             android:layout_marginTop="5dp"
             android:background="@color/black" />
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="Select Image"
             android:textAllCaps="false"
-            android:backgroundTint="#FF9800"
+            android:backgroundTint="#3F51B5"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp" />
 
@@ -52,7 +52,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
-            android:hint="Age" />
+            android:hint="Age (eg: 1 months/1 years)" />
 
 
         <com.google.android.material.textfield.TextInputLayout
@@ -140,7 +140,7 @@
             android:layout_height="wrap_content"
             android:text="Submit"
             android:textAllCaps="false"
-            android:backgroundTint="#00FF00"
+            android:backgroundTint="#3F51B5"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp" />

@@ -1,64 +1,47 @@
 package com.example.adopets_fyp;
 
 public class Message {
-    private String id;
-    private String username;
-    private String imageUrl;
-    private String text;
-    private String userId;
+    private String messageId;
+    private String senderUid;
+    private String receiverUid;
+    private String senderUsername;
+    private String messageText;
+    private long timestamp;
 
-    public Message (){
-
+    public Message() {
+        // Required empty constructor for Firebase
     }
 
-    public Message(String messageId, String userId, String username, String imageUrl, String messageText) {
-        this.id=messageId;
-        this.userId=userId;
-        this.username=username;
-        this.imageUrl=imageUrl;
-        this.text=messageText;
+    public Message(String messageId, String senderUid, String receiverUid, String senderUsername, String messageText, long timestamp) {
+        this.messageId = messageId;
+        this.senderUid = senderUid;
+        this.receiverUid = receiverUid;
+        this.senderUsername = senderUsername;
+        this.messageText = messageText;
+        this.timestamp = timestamp;
     }
 
-    public String getId() {
-        return id;
+    public String getMessageId() {
+        return messageId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public String getSenderUid() {
+        return senderUid;
     }
 
-    public String getUsername() {
-        return username;
+    public String getReceiverUid() {
+        return receiverUid;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getSenderUsername() {
+        return senderUsername;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getMessageText() {
+        return messageText;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public long getTimestamp() {
+        return timestamp;
     }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Message(String id, String username, String imageUrl, String text) {
-        this.id = id;
-        this.username = username;
-        this.imageUrl = imageUrl;
-        this.text = text;
-    }
-
-    // Getters and setters
-    // ...
 }
-
